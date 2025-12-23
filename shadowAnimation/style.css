@@ -1,0 +1,11 @@
+.button-gradient {
+  background-color: var(--color--gold700);
+  filter: blur(20px);
+  border-radius: 999px;
+  width: 5rem;
+  height: 5rem;
+  transition: top 2.5s, right 2.5s;
+  position: absolute;
+  inset: 0% 0% auto auto;
+  transform: translate(50%, -50%);
+}
