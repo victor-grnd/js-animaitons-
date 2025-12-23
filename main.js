@@ -1,40 +1,117 @@
-const button = document.querySelector(".button_main_wrap.is-bubble");
+class BubbleButton {
+  constructor(buttonElement) {
+    this.button = buttonElement;
+    this.bubble = this.button.querySelector(".button_main_circle");
+    this.isAnimating = false;
 
-if (button) {
-  let buttonCurrentlyAnimating = false;
+    if (!this.bubble) {
+      console.warn("Aucun élément .button_main_circle trouvé dans le bouton");
+      return;
+    }
 
-  function sleep(ms) {
+    this.init();
+  }
+
+  init() {
+    this.xSet = (value) => {
+      this.bubble.style.left = `${value}px`;
+    };
+
+    this.ySet = (value) => {
+      this.bubble.style.top = `${value}px`;
+    };
+
+    this.initEvents();
+  }
+
+  getXY(e) {
+    const rect = this.button.getBoundingClientRect();
+    return {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    };
+  }
+
+  async sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  async function animateBubble(button, e) {
-    buttonCurrentlyAnimating = true;
-    const bubble = button.querySelector(".button_main_circle");
-    const rect = button.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+  async animateBubbleIn(e) {
+    if (this.isAnimating) return;
 
-    bubble.style.left = `${x}px`;
-    bubble.style.top = `${y}px`;
+    this.isAnimating = true;
+    const { x, y } = this.getXY(e);
 
-    bubble.classList.add("animate");
-    await sleep(500);
-    buttonCurrentlyAnimating = false;
+    // Positionner la bulle
+    this.xSet(x);
+    this.ySet(y);
+
+    // Forcer un reflow pour séparer le positionnement du scale
+    this.bubble.offsetHeight;
+
+    // Animer le scale
+    this.bubble.style.transform = "scale(9)";
+    this.bubble.style.opacity = "1";
+
+    await this.sleep(300);
+    this.isAnimating = false;
   }
 
-  async function unanimateBubble(button) {
-    while (buttonCurrentlyAnimating) {
-      await sleep(50);
+  async animateBubbleOut(e) {
+    // Attendre que l'animation d'entrée se termine
+    while (this.isAnimating) {
+      await this.sleep(50);
     }
-    const bubble = button.querySelector(".button_main_circle");
-    bubble.classList.remove("animate");
+
+    const { x, y } = this.getXY(e); // x et y = coordonées de la mouse quand elle sort
+    const rect = this.button.getBoundingClientRect();
+
+    // Calculer si on sort par un bord
+    const xPercent = (x / rect.width) * 100;
+    const yPercent = (y / rect.height) * 100;
+
+    // Animer vers l'extérieur si on sort par un bord
+    if (xPercent > 90 || xPercent < 10 || yPercent > 90 || yPercent < 10) {
+      const offsetX = xPercent > 90 ? 20 : xPercent < 10 ? -20 : 0;
+      const offsetY = yPercent > 90 ? 20 : yPercent < 10 ? -20 : 0;
+
+      this.xSet(x + offsetX);
+      this.ySet(y + offsetY);
+    }
+
+    // Rétrécir la bulle
+    this.bubble.style.transform = "scale(0)";
+    this.bubble.style.opacity = "0";
   }
 
-  button.addEventListener("mouseenter", (e) => {
-    animateBubble(e.currentTarget, e);
-  });
+  handleMouseMove(e) {
+    if (!this.isAnimating) return;
 
-  button.addEventListener("mouseleave", (e) => {
-    unanimateBubble(e.currentTarget);
-  });
+    const { x, y } = this.getXY(e);
+    this.xSet(x);
+    this.ySet(y);
+  }
+
+  initEvents() {
+    this.button.addEventListener("mouseenter", (e) => {
+      this.animateBubbleIn(e);
+    });
+
+    this.button.addEventListener("mouseleave", (e) => {
+      this.animateBubbleOut(e);
+    });
+
+    this.button.addEventListener("mousemove", (e) => {
+      this.handleMouseMove(e);
+    });
+  }
 }
+
+// Initialiser tous les boutons avec la classe .is-bubble
+document.addEventListener("DOMContentLoaded", () => {
+  const buttons = document.querySelectorAll(".button_main_wrap.is-bubble");
+
+  buttons.forEach((button) => {
+    new BubbleButton(button);
+  });
+});
