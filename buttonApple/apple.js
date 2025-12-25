@@ -17,8 +17,8 @@ function initAppleButtons() {
 
       const appleButtonTimeline = gsap.timeline({ paused: true });
       appleButtonTimeline.to(buttonAppleText, {
-        y: "-250%",
-        duration: 0.5,
+        y: "-225%",
+        duration: 0.3,
       });
       appleButtonTimeline.fromTo(
         buttonAppleLogo,
@@ -27,9 +27,9 @@ function initAppleButtons() {
         },
         {
           y: "-50%",
-          duration: 0.5,
+          duration: 0.3,
         },
-        ">"
+        "<"
       );
 
       button.addEventListener("mouseenter", () => {
