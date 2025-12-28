@@ -23,7 +23,7 @@ appleButtons.forEach((button) => {
         duration: 0.6,
         ease: "power2.inOut",
       },
-      "<"
+      ">-0.25"
     );
 
   button.addEventListener("mouseenter", () => appleTl.play());
