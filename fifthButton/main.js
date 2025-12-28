@@ -8,18 +8,24 @@ fifthsButtons.forEach((button) => {
     return;
   }
 
-  const textSplited = new SplitText(text, {
-    type: "chars",
-    mask: "chars",
-  }).chars;
+  function initTextSplit(text) {
+    const textSplited = SplitText.create(text, {
+      type: "chars",
+      mask: "chars",
+    });
+
+    return textSplited.chars;
+  }
+
+  const textSplited = initTextSplit(text);
 
   const timeline = gsap.timeline({ paused: true });
 
-  timeline.set(textSplited, { yPercent: 0 });
-  timeline.set(arrow, { xPercent: 0, yPercent: 0 });
-
-  timeline.to(
+  timeline.fromTo(
     textSplited,
+    {
+      yPercent: 0,
+    },
     {
       yPercent: -100,
       ease: "power1.out",
@@ -47,8 +53,12 @@ fifthsButtons.forEach((button) => {
     0.13
   );
 
-  timeline.to(
+  timeline.fromTo(
     arrow,
+    {
+      yPercent: 0,
+    },
+
     {
       xPercent: 100,
       yPercent: -100,
